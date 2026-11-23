@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgilBot — Identificador de Conceitos Ágeis</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Estilização refinada de barras de rolagem e animações suaves */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.7);
+    }
+
+    @keyframes pulseDot {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+    .typing-dot {
+      animation: pulseDot 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-message {
+      animation: fadeSlideUp 0.25s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased selection:bg-brand-500 selection:text-white overflow-hidden">
+
+  <!-- Container Principal em Tela Cheia -->
+  <div class="flex flex-col h-full w-full">
+
+    <!-- Cabeçalho Superior -->
+    <header class="flex-none bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 z-20 shadow-sm">
+      <div class="max-w-screen-2xl mx-auto flex items-center justify-between gap-3">
+        <!-- Identidade do Bot -->
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-brand-600 to-emerald-600 flex items-center justify-center text-white shadow-md flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white truncate">
+                AgilBot
+              </h1>
+              <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Identificador de Conceitos Ágeis
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+              Metodologia Ágil de Desenvolvimento de Software • Scrum &amp; Práticas Complementares
+            </p>
+          </div>
+        </div>
+
+        <!-- Controles do Cabeçalho -->
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <!-- Seletor de Modo de Análise -->
+          <div class="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700" title="Escolha o motor de análise semântica">
+            <button id="mode-hybrid-btn" type="button" onclick="setEngineMode('hybrid')"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-700 text-brand-700 dark:text-brand-300 shadow-sm">
+              Híbrido (IA + Local)
+            </button>
+            <button id="mode-local-btn" type="button" onclick="setEngineMode('local')"
+              class="px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+              Local Instantâneo
+            </button>
+          </div>
+
+          <!-- Alternar Tema Claro/Escuro -->
+          <button id="theme-toggle-btn" type="button" onclick="toggleDarkMode()"
+            class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+            title="Alternar tema claro/escuro" aria-label="Alternar tema">
+            <svg id="icon-sun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+            </svg>
+            <svg id="icon-moon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
+          </button>
+
+          <!-- Botão Mobile para Abrir Painel Lateral -->
+          <button id="mobile-sidebar-toggle" type="button" onclick="toggleMobileSidebar(true)"
+            class="lg:hidden relative inline-flex items-center gap-2 px-3 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+            </svg>
+            <span>Sessão</span>
+            <span id="mobile-session-badge" class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-white text-brand-700 font-bold text-[11px]">
+              0
+            </span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Área Central Dividida: Chat Principal + Painel Lateral -->
+    <div class="flex-1 flex min-h-0 max-w-screen-2xl w-full mx-auto relative">
+
+      <!-- (1) ÁREA PRINCIPAL DE CHAT -->
+      <main class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950">
+
+        <!-- Histórico de Mensagens -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-5">
+          <!-- Mensagem de Boas-vindas Inicial -->
+          <div class="flex items-start gap-3 max-w-4xl animate-message">
+            <div class="w-9 h-9 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-sm mt-0.5">
+              AB
+            </div>
+            <div class="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-tl-sm p-4 sm:p-5 shadow-sm space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-sm font-bold text-slate-900 dark:text-white">Olá! Eu sou o AgilBot.</span>
+                <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
+                  Base de Conhecimento: 32 Conceitos Ágeis
+                </span>
+              </div>
+              <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                Posso identificar automaticamente os principais conceitos da <strong>Metodologia Ágil</strong> (Scrum e práticas complementares) de duas formas:
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80">
+                  <div class="font-semibold text-brand-600 dark:text-brand-400 mb-1">1. Perguntas Diretas</div>
+                  <p class="text-slate-600 dark:text-slate-300">Ex.: <em>"O que é Definition of Done?"</em> ou <em>"Qual o papel do Scrum Master?"</em></p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80">
+                  <div class="font-semibold text-emerald-600 dark:text-emerald-400 mb-1">2. Cenários e Situações Reais</div>
+                  <p class="text-slate-600 dark:text-slate-300">Ex.: <em>"Reunião diária de 15 minutos em pé para ver impedimentos"</em></p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Cada conceito identificado é registrado automaticamente no painel <strong>Conceitos Identificados na Sessão</strong> para consulta, filtragem e exportação.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicador de Digitação (Oculto por padrão) -->
+        <div id="typing-indicator" class="hidden px-4 sm:px-6 pb-2">
+          <div class="inline-flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-2.5 shadow-sm">
+            <div class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-brand-600 typing-dot"></span>
+              <span class="w-2 h-2 rounded-full bg-brand-600 typing-dot"></span>
+              <span class="w-2 h-2 rounded-full bg-brand-600 typing-dot"></span>
+            </div>
+            <span id="typing-label" class="text-xs font-medium text-slate-500 dark:text-slate-400">
+              Analisando cenário e identificando conceitos ágeis...
+            </span>
+          </div>
+        </div>
+
+        <!-- Sugestões Rápidas Clicáveis -->
+        <div class="px-4 sm:px-6 pt-2 pb-1 bg-slate-50 dark:bg-slate-950 border-t border-slate-200/70 dark:border-slate-800/70">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Sugestões rápidas para testar:
+            </span>
+            <button type="button" onclick="requestResetChat()" class="text-[11px] font-medium text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 transition-colors">
+              Limpar conversa
+            </button>
+          </div>
+          <div id="quick-suggestions" class="flex items-center gap-2 overflow-x-auto pb-2">
+            <button type="button" onclick="sendQuickPrompt('Reunião diária de 15 minutos em pé para ver impedimentos')"
+              class="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:border-brand-300 dark:hover:border-brand-700 transition-all shadow-sm">
+              Reunião diária de 15 min em pé para ver impedimentos
+            </button>
+            <button type="button" onclick="sendQuickPrompt('O que é Definition of Done?')"
+              class="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:border-brand-300 dark:hover:border-brand-700 transition-all shadow-sm">
+              O que é Definition of Done?
+            </button>
+            <button type="button" onclick="sendQuickPrompt('Cliente priorizando requisitos essenciais para o MVP e deixando desejáveis para depois')"
+              class="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:border-brand-300 dark:hover:border-brand-700 transition-all shadow-sm">
+              Priorização de requisitos para MVP
+            </button>
+            <button type="button" onclick="sendQuickPrompt('Time usando cartas para estimar o esforço das histórias na reunião de planejamento')"
+              class="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:border-brand-300 dark:hover:border-brand-700 transition-all shadow-sm">
+              Cartas para estimar esforço no planejamento
+            </button>
+            <button type="button" onclick="sendQuickPrompt('Validação formal da entrega pelo cliente antes de colocar o sistema em produção')"
+              class="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 hover:bg-brand-50 dark:hover:bg-brand-950/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:border-brand-300 dark:hover:border-brand-700 transition-all shadow-sm">
+              Validação antes de ir para produção
+            </button>
+          </div>
+        </div>
+
+        <!-- Campo de Entrada de Texto -->
+        <div class="flex-none p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+          <form id="chat-form" onsubmit="handleChatSubmit(event)" class="max-w-4xl mx-auto flex items-end gap-2.5">
+            <div class="flex-1 relative">
+              <label for="user-input" class="sr-only">Descreva um cenário ágil ou faça uma pergunta</label>
+              <textarea id="user-input" rows="1" placeholder="Pergunte sobre um conceito (ex: Sprint Review) ou descreva uma situação real..."
+                class="w-full resize-none rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-brand-500 dark:focus:border-brand-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-brand-500/20 px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all max-h-32"
+                onkeydown="handleInputKeydown(event)" oninput="autoResizeTextarea(this)"></textarea>
+            </div>
+            <button id="send-btn" type="submit"
+              class="flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white text-sm font-semibold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <span class="hidden sm:inline">Identificar</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </main>
+
+      <!-- Backdrop Mobile para o Painel Lateral -->
+      <div id="sidebar-backdrop" onclick="toggleMobileSidebar(false)"
+        class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-30 hidden lg:hidden transition-opacity"></div>
+
+      <!-- (2) PAINEL LATERAL: CONCEITOS IDENTIFICADOS NA SESSÃO E FILTROS -->
+      <aside id="right-sidebar"
+        class="fixed inset-y-0 right-0 z-40 w-full max-w-sm sm:max-w-md lg:static lg:w-96 xl:w-[420px] flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl lg:shadow-none transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+
+        <!-- Cabeçalho do Painel Lateral -->
+        <div class="flex-none p-4 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>Conceitos Identificados na Sessão</span>
+                <span id="session-count-badge" class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-brand-100 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+                  0
+                </span>
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Mapeamento automático da conversa atual
+              </p>
+            </div>
+            <!-- Fechar no Mobile -->
+            <button type="button" onclick="toggleMobileSidebar(false)"
+              class="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Alternador de Visão: Identificados vs Base Completa -->
+          <div class="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 mb-3">
+            <button id="tab-session-btn" type="button" onclick="setSidebarView('session')"
+              class="py-1.5 px-2.5 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs">
+              Na Sessão (<span id="tab-session-num">0</span>)
+            </button>
+            <button id="tab-catalog-btn" type="button" onclick="setSidebarView('catalog')"
+              class="py-1.5 px-2.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+              Base Completa (32)
+            </button>
+          </div>
+
+          <!-- Filtro por Categorias -->
+          <div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
+              Filtrar por Categoria:
+            </div>
+            <div id="category-filters" class="flex flex-wrap gap-1.5">
+              <!-- Renderizado dinamicamente via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista Rolável de Conceitos -->
+        <div id="sidebar-concepts-list" class="flex-1 overflow-y-auto p-4 space-y-2.5">
+          <!-- Renderizado dinamicamente via JS -->
+        </div>
+
+        <!-- Rodapé do Painel Lateral: Copiar e Exportar Resumo -->
+        <div class="flex-none p-4 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 space-y-2">
+          <div class="grid grid-cols-2 gap-2">
+            <button id="copy-summary-btn" type="button" onclick="copySessionSummary()"
+              class="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 shadow-xs transition-all">
+              <svg class="w-4 h-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+              </svg>
+              <span>Copiar Resumo</span>
+            </button>
+            <button id="export-summary-btn" type="button" onclick="exportSessionSummary()"
+              class="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              <span>Exportar (.md)</span>
+            </button>
+          </div>
+          <p class="text-[11px] text-center text-slate-400 dark:text-slate-500">
+            Gera relatório estruturado dos conceitos identificados na sessão
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes do Conceito -->
+  <div id="concept-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/65 backdrop-blur-xs">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-message">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span id="modal-category-badge" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold mb-1.5"></span>
+          <h3 id="modal-title" class="text-lg font-bold text-slate-900 dark:text-white"></h3>
+        </div>
+        <button type="button" onclick="closeConceptModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="space-y-3 text-sm">
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Explicação Objetiva</div>
+          <p id="modal-explanation" class="text-slate-700 dark:text-slate-300 leading-relaxed"></p>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-0.5">Papel Responsável</div>
+          <p id="modal-role" class="font-semibold text-slate-900 dark:text-white"></p>
+        </div>
+        <div class="p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/50">
+          <div class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-0.5">Aplicabilidade Prática</div>
+          <p id="modal-applicability" class="text-slate-700 dark:text-slate-300 leading-relaxed"></p>
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="closeConceptModal()"
+          class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          Fechar
+        </button>
+        <button id="modal-ask-btn" type="button"
+          class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-sm">
+          Consultar no Chat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação para Limpar Conversa (Substitui confirm() nativo) -->
+  <div id="confirm-clear-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/65 backdrop-blur-xs">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-message">
+      <h3 class="text-base font-bold text-slate-900 dark:text-white">Reiniciar sessão do AgilBot?</h3>
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        Isso limpará o histórico de mensagens e a lista de conceitos identificados nesta sessão.
+      </p>
+      <div class="flex items-center justify-end gap-2">
+        <button type="button" onclick="closeClearModal()"
+          class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          Cancelar
+        </button>
+        <button type="button" onclick="confirmResetChat()"
+          class="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-sm">
+          Sim, limpar tudo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificação Toast Flutuante -->
+  <div id="toast-container" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
+
+  <script>
+    /**
+     * ============================================================================
+     * BASE DE CONHECIMENTO COMPLETA (32 CONCEITOS DA METODOLOGIA ÁGIL STIC/MEC)
+     * Estruturada nas 6 categorias obrigatórias:
+     * 1. Valores e Pilares (8)
+     * 2. Papéis (3)
+     * 3. Fases (5)
+     * 4. Artefatos (5)
+     * 5. Cerimônias (5)
+     * 6. Práticas (6)
+     * ============================================================================
+     */
+    const AGILE_CONCEPTS = [
+      // --- 1. VALORES E PILARES (8) ---
+      {
+        id: 'comprometimento',
+        name: 'Comprometimento',
+        category: 'Valores e Pilares',
+        aliases: ['comprometimento', 'valor comprometimento', 'compromisso com o time'],
+        keywords: ['comprometimento', 'comprometer', 'metas', 'produto', 'equipe', 'dedicacao', 'responsabilidade', 'entrega'],
+        scenarioPatterns: ['comprometer com as metas', 'compromisso com a entrega', 'engajamento da equipe com o objetivo'],
+        explanation: 'Valor ágil que orienta cada integrante a se comprometer genuinamente com o seu trabalho, com a equipe e com o alcance das metas do produto e da Sprint.',
+        responsibleRole: 'Todo o Time Ágil (Gerente do Produto, Scrum Master e Time de Desenvolvimento)',
+        practicalApplicability: 'Quando o Time de Desenvolvimento assume apenas o escopo compatível com sua capacidade na Sprint Planning e trabalha colaborativamente para cumpri-lo.'
+      },
+      {
+        id: 'coragem',
+        name: 'Coragem',
+        category: 'Valores e Pilares',
+        aliases: ['coragem', 'valor coragem'],
+        keywords: ['coragem', 'corajoso', 'mudar', 'coisa certa', 'desafios', 'assumir riscos', 'enfrentar problemas', 'dizer nao'],
+        scenarioPatterns: ['coragem para mudar', 'fazer a coisa certa', 'admitir que o escopo nao cabe', 'enfrentar problemas tecnicos'],
+        explanation: 'Valor ágil que incentiva os membros da equipe a terem coragem para enfrentar problemas difíceis, propor mudanças necessárias e fazer a coisa certa mesmo diante de incertezas.',
+        responsibleRole: 'Todo o Time Ágil (Gerente do Produto, Scrum Master e Time de Desenvolvimento)',
+        practicalApplicability: 'Quando a equipe reporta imediatamente um bloqueio técnico ou negocia a redução de escopo com o PO em vez de esconder atrasos.'
+      },
+      {
+        id: 'foco',
+        name: 'Foco',
+        category: 'Valores e Pilares',
+        aliases: ['foco', 'valor foco'],
+        keywords: ['foco', 'concentrado', 'concentracao', 'objetivo da sprint', 'prioridade', 'sem dispersao', 'fator de foco'],
+        scenarioPatterns: ['manter o foco', 'concentrado no trabalho do sprint', 'evitar interrupcoes', 'focar nas prioridades'],
+        explanation: 'Valor ágil que determina que todos permaneçam concentrados no trabalho da Sprint atual e nos objetivos prioritários da equipe Scrum, evitando distrações e tarefas fora do escopo.',
+        responsibleRole: 'Todo o Time Ágil (protegido pelo Scrum Master)',
+        practicalApplicability: 'Durante a Sprint, o time evita iniciar tarefas não planejadas para garantir que os itens priorizados no Sprint Backlog sejam concluídos.'
+      },
+      {
+        id: 'abertura',
+        name: 'Abertura',
+        category: 'Valores e Pilares',
+        aliases: ['abertura', 'valor abertura'],
+        keywords: ['abertura', 'aberto', 'honesto', 'desafios', 'transparente', 'sinceridade', 'compartilhar dificuldades'],
+        scenarioPatterns: ['ser aberto com a equipe', 'honesto sobre os desafios', 'expor dificuldades sem medo', 'ambiente seguro'],
+        explanation: 'Valor ágil que promove a honestidade sobre os desafios enfrentados e a disposição para compartilhar informações, dúvidas e aprendizados de forma transparente com toda a equipe.',
+        responsibleRole: 'Todo o Time Ágil (Gerente do Produto, Scrum Master e Time de Desenvolvimento)',
+        practicalApplicability: 'Na Daily Meeting ou na Sprint Retrospective, os membros expõem abertamente falhas no processo ou dificuldades técnicas para buscar ajuda coletiva.'
+      },
+      {
+        id: 'respeito',
+        name: 'Respeito',
+        category: 'Valores e Pilares',
+        aliases: ['respeito', 'valor respeito'],
+        keywords: ['respeito', 'respeitar', 'confiar', 'integridade', 'qualificados', 'colaboracao', 'auto-organizacao', 'autonomia'],
+        scenarioPatterns: ['respeitar os colegas', 'confiar na equipe', 'integridade profissional', 'respeitar a autonomia tecnica'],
+        explanation: 'Valor ágil fundamentado no respeito mútuo entre os colegas e na confiança de que cada integrante age com integridade e competência técnica para entregar valor.',
+        responsibleRole: 'Todo o Time Ágil (Gerente do Produto, Scrum Master e Time de Desenvolvimento)',
+        practicalApplicability: 'O PO respeita as estimativas técnicas definidas pelo Time de Desenvolvimento no Planning Poker sem impor prazos arbitrários.'
+      },
+      {
+        id: 'transparencia',
+        name: 'Transparência',
+        category: 'Valores e Pilares',
+        aliases: ['transparencia', 'pilar transparencia', 'pilares do scrum'],
+        keywords: ['transparencia', 'visivel', 'visibilidade', 'padrao comum', 'entendimento compartilhado', 'clareza', 'quadro kanban'],
+        scenarioPatterns: ['aspectos visiveis', 'visibilidade do progresso', 'entendimento comum', 'deixar claro o andamento'],
+        explanation: 'Pilar do empirismo ágil que exige que os aspectos significativos do processo (Backlog, progresso da Sprint e Definição de Pronto) estejam visíveis e compreendidos sob um padrão comum por todos.',
+        responsibleRole: 'Todo o Time Ágil (facilitado pelo Scrum Master)',
+        practicalApplicability: 'Manter o Backlog do Produto, o Sprint Burndown e os critérios de aceitação visíveis a todos os stakeholders em ferramentas como o GitLab.'
+      },
+      {
+        id: 'inspecao',
+        name: 'Inspeção',
+        category: 'Valores e Pilares',
+        aliases: ['inspecao', 'pilar inspecao', 'inspecionar'],
+        keywords: ['inspecao', 'inspecionar', 'verificar', 'avaliar', 'detectar variacoes', 'progresso', 'artefatos', 'revisar'],
+        scenarioPatterns: ['inspecionar os artefatos', 'avaliar o progresso', 'detectar desvios', 'verificar andamento diariamente'],
+        explanation: 'Pilar do empirismo ágil em que o Time Ágil inspeciona frequentemente os artefatos e o progresso em direção à Meta da Sprint para detectar variações indesejadas e otimizar entregas.',
+        responsibleRole: 'Todo o Time Ágil e Partes Interessadas (nas cerimônias)',
+        practicalApplicability: 'Ocorre diariamente na Daily Meeting (inspeção do progresso em 24h) e ao final do ciclo na Sprint Review (inspeção do Incremento).'
+      },
+      {
+        id: 'adaptacao',
+        name: 'Adaptação',
+        category: 'Valores e Pilares',
+        aliases: ['adaptacao', 'pilar adaptacao', 'adaptar'],
+        keywords: ['adaptacao', 'adaptar', 'ajustar', 'desvios', 'mudanca', 'melhoria', 'corrigir rumo', 'flexibilidade'],
+        scenarioPatterns: ['ajustar o processo', 'corrigir desvios', 'adaptar o plano', 'mudar de direcao apos feedback'],
+        explanation: 'Pilar do empirismo ágil que consiste em ajustar rapidamente o produto ou o processo assim que uma inspeção revela desvios fora dos limites aceitáveis, minimizando impactos.',
+        responsibleRole: 'Todo o Time Ágil',
+        practicalApplicability: 'Ajustar o Backlog do Produto após o feedback da Sprint Review ou implementar ações corretivas definidas na Sprint Retrospective.'
+      },
+
+      // --- 2. PAPÉIS (3) ---
+      {
+        id: 'gerente-produto',
+        name: 'Gerente do Produto (Product Owner / PO)',
+        category: 'Papéis',
+        aliases: ['gerente do produto', 'product owner', 'po', 'dono do produto', 'representante do cliente'],
+        keywords: ['gerente do produto', 'product owner', 'po', 'negocio', 'cliente', 'roi', 'priorizar', 'visao', 'aceite', 'homologar', 'autoridade'],
+        scenarioPatterns: ['voz do cliente', 'priorizar o backlog', 'definir o que sera construido', 'assinar termo de aceite', 'autorizar implantacao', 'representante do negocio'],
+        explanation: 'Representante máximo do cliente e do negócio no Time Ágil. Traduz necessidades em requisitos (Histórias de Usuário), define a Visão do Produto, gerencia e prioriza o Backlog para maximizar o ROI e detém autoridade exclusiva para homologar entregas e autorizar a implantação.',
+        responsibleRole: 'Gerente do Produto (Product Owner)',
+        practicalApplicability: 'Prioriza os itens mais valiosos antes da Sprint Planning, esclarece regras de negócio diariamente e valida o Incremento na Homologação.'
+      },
+      {
+        id: 'scrum-master',
+        name: 'Scrum Master',
+        category: 'Papéis',
+        aliases: ['scrum master', 'sm', 'lider servidor', 'facilitador agil'],
+        keywords: ['scrum master', 'impedimentos', 'remover impedimentos', 'facilitador', 'lider servidor', 'regras', 'cerimonias', 'metricas', 'lean', 'conflitos', 'mentor'],
+        scenarioPatterns: ['remover impedimentos', 'eliminar obstaculos', 'garantir cumprimento das regras', 'facilitar cerimonias', 'mediar conflitos', 'proteger o time'],
+        explanation: 'Líder-servidor especialista nos processos e regras da Metodologia Ágil. Zela pelo cumprimento dos ritos e artefatos, atua ativamente na remoção de impedimentos, media conflitos, acompanha métricas (Velocity, Lead Time) e promove a melhoria contínua.',
+        responsibleRole: 'Scrum Master',
+        practicalApplicability: 'Quando um desenvolvedor relata na Daily que está bloqueado por falta de acesso a um servidor, o Scrum Master atua imediatamente para desbloquear o ambiente.'
+      },
+      {
+        id: 'time-desenvolvimento',
+        name: 'Time de Desenvolvimento',
+        category: 'Papéis',
+        aliases: ['time de desenvolvimento', 'equipe de desenvolvimento', 'desenvolvedores', 'dev team', 'time agil'],
+        keywords: ['time de desenvolvimento', 'desenvolvedores', 'multidisciplinar', 'multifuncional', 'auto-organizado', 'estimar', 'construir', 'codigo', 'testes', 'incremento'],
+        scenarioPatterns: ['equipe multidisciplinar', 'transformar backlog em incremento', 'definir como o trabalho sera feito', 'auto-organizacao', 'estimar esforco'],
+        explanation: 'Grupo multidisciplinar e auto-organizado (recomendado entre 3 e 9 membros, sem hierarquia interna) responsável por transformar os itens do Sprint Backlog em Incrementos funcionais e testados, definindo autonomamente como executar o trabalho técnico.',
+        responsibleRole: 'Time de Desenvolvimento (Analistas, Designers, Programadores, Testadores)',
+        practicalApplicability: 'Na Sprint Planning, o Time quebra as histórias em tarefas técnicas, estima o esforço e define quanto escopo consegue entregar na Sprint.'
+      },
+
+      // --- 3. FASES (5) ---
+      {
+        id: 'fase-preparacao',
+        name: 'Fase de Preparação',
+        category: 'Fases',
+        aliases: ['preparacao', 'fase de preparacao', 'visao do produto', 'vision statement'],
+        keywords: ['preparacao', 'visao do produto', 'vision statement', 'oportunidade', 'mapeamento', 'necessidade de negocio', 'objetivo do produto'],
+        scenarioPatterns: ['identificar necessidade do negocio', 'elaborar declaracao de visao', 'definir o gerente do produto', 'inicio do projeto agil'],
+        explanation: 'Primeira fase do ciclo de vida na Metodologia Ágil MEC. Contempla a identificação e modelagem das necessidades de negócio, a designação do Gerente do Produto e a elaboração da Declaração de Visão do Produto (Vision Statement).',
+        responsibleRole: 'Gerente do Produto (com apoio da área de negócio)',
+        practicalApplicability: 'Antes de iniciar qualquer desenvolvimento, o PO documenta por que o sistema é necessário, quem são os usuários e qual o estado futuro esperado.'
+      },
+      {
+        id: 'fase-concepcao',
+        name: 'Fase de Concepção',
+        category: 'Fases',
+        aliases: ['concepcao', 'fase de concepcao', 'especificacao de requisitos'],
+        keywords: ['concepcao', 'detalhamento', 'arquitetura preliminar', 'historias de usuario', 'requisitos funcionais', 'requisitos nao funcionais', 'backlog inicial'],
+        scenarioPatterns: ['detalhar a visao em historias de usuario', 'arquitetura preliminar', 'levantar requisitos iniciais', 'gerar backlog do produto'],
+        explanation: 'Segunda fase da metodologia, na qual a Visão do Produto é detalhada em requisitos funcionais (no formato de Histórias de Usuário), requisitos não funcionais e arquitetura preliminar, originando o Backlog do Produto inicial.',
+        responsibleRole: 'Gerente do Produto (com apoio técnico e de negócio)',
+        practicalApplicability: 'O PO escreve as primeiras Histórias de Usuário, mapeia integrações e ordena o Backlog inicial para alimentar as primeiras Sprints.'
+      },
+      {
+        id: 'fase-construcao',
+        name: 'Fase de Construção',
+        category: 'Fases',
+        aliases: ['construcao', 'fase de construcao', 'desenvolvimento iterativo'],
+        keywords: ['construcao', 'codificacao', 'sprints', 'desenvolvimento', 'ativos', 'componentes', 'testes', 'incremental'],
+        scenarioPatterns: ['executar sprints de desenvolvimento', 'codificar e testar funcionalidades', 'construir o incremento'],
+        explanation: 'Terceira fase do processo, dedicada ao desenvolvimento contínuo e incremental do software pelo Time de Desenvolvimento por meio de ciclos iterativos (Sprints), gerando código, testes e documentação.',
+        responsibleRole: 'Time de Desenvolvimento (facilitado pelo Scrum Master)',
+        practicalApplicability: 'Durante uma Sprint de 2 a 4 semanas, o time codifica, integra e testa as funcionalidades selecionadas no Sprint Backlog.'
+      },
+      {
+        id: 'fase-homologacao',
+        name: 'Fase de Homologação',
+        category: 'Fases',
+        aliases: ['homologacao', 'fase de homologacao', 'termo de aceite', 'validacao da entrega'],
+        keywords: ['homologacao', 'homologar', 'validar', 'termo de aceite', 'criterios de aceitacao', 'ambiente de homologacao', 'aceite'],
+        scenarioPatterns: ['validar entrega antes da implantacao', 'assinar termo de aceite', 'ambiente igual ao de producao', 'validacao pelo gerente do produto'],
+        explanation: 'Quarta fase, executada após cada Sprint sem paralelismo, onde o Gerente do Produto valida formalmente o Incremento em ambiente espelho ao de produção, emitindo o Termo de Aceite conforme os critérios definidos.',
+        responsibleRole: 'Gerente do Produto (com suporte do Time de Desenvolvimento)',
+        practicalApplicability: 'Ao concluir a Sprint, o PO testa as histórias entregues em homologação e formaliza o Termo de Aceite antes de liberar para produção.'
+      },
+      {
+        id: 'fase-implantacao',
+        name: 'Fase de Implantação',
+        category: 'Fases',
+        aliases: ['implantacao', 'fase de implantacao', 'deploy em producao', 'liberacao em producao'],
+        keywords: ['implantacao', 'producao', 'disponibilizacao', 'usuarios finais', 'operacao', 'sustentacao', 'infraestrutura', 'deploy'],
+        scenarioPatterns: ['colocar sistema em producao', 'liberar para os usuarios', 'autorizar disponibilizacao em producao', 'transferir para sustentacao'],
+        explanation: 'Quinta fase que encerra o ciclo de desenvolvimento, disponibilizando o Incremento homologado em ambiente de produção para os usuários finais, mediante autorização exclusiva do Gerente do Produto.',
+        responsibleRole: 'Gerente do Produto (autoriza) e Times de Desenvolvimento / Infraestrutura / QA (executam)',
+        practicalApplicability: 'Após o aceite formal, o PO autoriza o deploy na esteira DevSecOps para que os cidadãos ou servidores passem a utilizar a nova funcionalidade.'
+      },
+
+      // --- 4. ARTEFATOS (5) ---
+      {
+        id: 'backlog-produto',
+        name: 'Backlog do Produto (Product Backlog)',
+        category: 'Artefatos',
+        aliases: ['backlog do produto', 'product backlog', 'backlog', 'lista de requisitos'],
+        keywords: ['backlog do produto', 'product backlog', 'lista ordenada', 'origem unica', 'requisitos', 'priorizado', 'visivel'],
+        scenarioPatterns: ['lista ordenada de tudo que e necessario', 'origem unica dos requisitos', 'gerenciar e ordenar demandas do produto'],
+        explanation: 'Lista dinâmica e ordenada de tudo o que é necessário no produto, servindo como fonte única de requisitos para qualquer evolução. Deve estar sempre visível, priorizado e refinado.',
+        responsibleRole: 'Gerente do Produto (Product Owner)',
+        practicalApplicability: 'O PO mantém o Backlog ordenado no GitLab do projeto, colocando no topo os itens de maior valor de negócio para a próxima Sprint.'
+      },
+      {
+        id: 'epicos-historias',
+        name: 'Épicos e Histórias de Usuário',
+        category: 'Artefatos',
+        aliases: ['epicos e historias de usuario', 'historias de usuario', 'user stories', 'epicos', 'temas', 'iniciativas', 'invest'],
+        keywords: ['historia de usuario', 'historias de usuario', 'user story', 'epico', 'epicos', 'tema', 'iniciativa', 'invest', 'criterios de aceitacao'],
+        scenarioPatterns: ['menor pedaco independente que entrega valor', 'linguagem do usuario final', 'agrupamento de historias em epicos', 'criterios invest'],
+        explanation: 'Histórias de Usuário descrevem funcionalidades na linguagem do negócio como o menor pedaço independente que entrega valor (seguindo critérios INVEST). Épicos agrupam histórias de um mesmo contexto, e Temas/Iniciativas agrupam épicos.',
+        responsibleRole: 'Gerente do Produto (com apoio do Time Ágil no refinamento)',
+        practicalApplicability: 'Um Épico "Gestão de Matrículas" é quebrado em Histórias de Usuário menores, como "Como aluno, quero emitir comprovante de matrícula em PDF".'
+      },
+      {
+        id: 'sprint-backlog',
+        name: 'Sprint Backlog',
+        category: 'Artefatos',
+        aliases: ['sprint backlog', 'backlog da sprint', 'escopo da sprint'],
+        keywords: ['sprint backlog', 'itens selecionados', 'plano de entrega', 'tarefas', 'previsao', 'escopo da iteracao'],
+        scenarioPatterns: ['itens selecionados para a sprint', 'plano para atingir o objetivo da sprint', 'quebrar historias em tarefas da iteracao'],
+        explanation: 'Conjunto de itens do Backlog do Produto selecionados para a Sprint atual, somado ao plano de ação (quebra em tarefas técnicas e estimativas) elaborado pelo Time de Desenvolvimento para atingir a Meta da Sprint.',
+        responsibleRole: 'Time de Desenvolvimento',
+        practicalApplicability: 'Ao final da Sprint Planning, o quadro da Sprint exibe as histórias comprometidas e suas respectivas subtarefas de frontend, backend e testes.'
+      },
+      {
+        id: 'incremento',
+        name: 'Incremento',
+        category: 'Artefatos',
+        aliases: ['incremento', 'incremento do produto', 'entrega funcional'],
+        keywords: ['incremento', 'soma', 'utilizavel', 'potencialmente utilizavel', 'valor real', 'entrega da sprint'],
+        scenarioPatterns: ['soma de todos os itens completados', 'software em condicao utilizavel', 'entrega funcional ao fim da sprint'],
+        explanation: 'Resultado concreto do trabalho do Time de Desenvolvimento ao final de uma Sprint, representando a soma de todos os itens concluídos na iteração atual e nas anteriores em condição utilizável.',
+        responsibleRole: 'Time de Desenvolvimento',
+        practicalApplicability: 'Ao final da Sprint 2, o Incremento contém as funcionalidades testadas da Sprint 1 integradas às novas entregas da Sprint 2, prontas para homologação.'
+      },
+      {
+        id: 'definicao-pronto',
+        name: 'Definição de Pronto (Definition of Done - DoD)',
+        category: 'Artefatos',
+        aliases: ['definicao de pronto', 'definition of done', 'dod', 'criterios de pronto'],
+        keywords: ['definicao de pronto', 'definition of done', 'dod', 'entendimento compartilhado', 'completo', 'qualidade', 'checklist'],
+        scenarioPatterns: ['entendimento compartilhado do que significa pronto', 'criterios para considerar tarefa concluida', 'evitar retrabalho na entrega'],
+        explanation: 'Acordo formal e transparente que estabelece os critérios técnicos e de qualidade obrigatórios para que um item ou Incremento seja considerado "Pronto" (código revisado, testes automatizados, documentação e homologação).',
+        responsibleRole: 'Todo o Time Ágil (alinhado entre PO, Scrum Master e Time de Desenvolvimento)',
+        practicalApplicability: 'Uma história só é movida para "Concluído" quando passa nos testes unitários, análise de segurança, revisão de código e critérios de aceitação.'
+      },
+
+      // --- 5. CERIMÔNIAS (5) ---
+      {
+        id: 'sprint',
+        name: 'Sprint (e Release)',
+        category: 'Cerimônias',
+        aliases: ['sprint', 'iteracao', 'ciclo agil', 'release'],
+        keywords: ['sprint', 'iteracao', '2 a 4 semanas', 'ciclo', 'coracao do scrum', 'release', 'timebox fixo'],
+        scenarioPatterns: ['ciclo de 2 a 4 semanas', 'iteracao de duracao fixa', 'coracao do processo agil', 'conjunto de ate 4 sprints'],
+        explanation: 'O coração do Scrum: um ciclo time-boxed contínuo de 2 a 4 semanas durante o qual um Incremento utilizável é criado. Um conjunto de até 4 Sprints compõe uma Release alinhada a uma meta de negócio.',
+        responsibleRole: 'Todo o Time Ágil (apenas o PO pode cancelar uma Sprint)',
+        practicalApplicability: 'O projeto adota Sprints fixas de 2 semanas; ao terminar a Sprint Review e a Retrospective de uma Sprint, a próxima inicia imediatamente.'
+      },
+      {
+        id: 'sprint-planning',
+        name: 'Sprint Planning (Planejamento da Sprint)',
+        category: 'Cerimônias',
+        aliases: ['sprint planning', 'planejamento da sprint', 'reuniao de planejamento', 'sprint goal', 'meta da sprint'],
+        keywords: ['sprint planning', 'planejamento', 'sprint goal', 'meta da sprint', 'o que sera entregue', 'como sera realizado', 'primeiro dia'],
+        scenarioPatterns: ['reuniao no primeiro dia da sprint', 'definir meta da sprint', 'planejar o que pode ser entregue', 'quebrar itens e estimar'],
+        explanation: 'Cerimônia realizada no primeiro dia da Sprint (timebox máximo de 1 dia para Sprints de 30 dias) onde o PO apresenta as prioridades e o Time define a Meta da Sprint (Sprint Goal) e o Sprint Backlog.',
+        responsibleRole: 'Todo o Time Ágil (PO prioriza, Time estima/planeja e Scrum Master facilita)',
+        practicalApplicability: 'Na segunda-feira de manhã, o PO explica as 5 histórias prioritárias e o Time seleciona as 3 que cabem na capacidade da Sprint.'
+      },
+      {
+        id: 'daily-meeting',
+        name: 'Daily Meeting (Reunião Diária)',
+        category: 'Cerimônias',
+        aliases: ['daily meeting', 'daily', 'reuniao diaria', 'daily scrum', 'standup'],
+        keywords: ['daily', 'reuniao diaria', '15 minutos', 'em pe', 'o que fiz', 'o que vou fazer', 'impedimento', 'impedimentos', '24 horas', 'sincronizar'],
+        scenarioPatterns: ['reuniao diaria de 15 minutos', 'reuniao em pe', 'ver impedimentos', 'sincronizar atividades diarias', 'tres perguntas diarias'],
+        explanation: 'Evento time-boxed de no máximo 15 minutos realizado diariamente no mesmo horário e local (preferencialmente em pé) para o Time de Desenvolvimento sincronizar atividades, planejar as próximas 24 horas e expor impedimentos.',
+        responsibleRole: 'Time de Desenvolvimento (executa) e Scrum Master (facilita e trata impedimentos)',
+        practicalApplicability: 'Todos os dias às 9h30, cada dev responde em 1 minuto: o que fez ontem, o que fará hoje e se há algum impedimento bloqueando seu trabalho.'
+      },
+      {
+        id: 'sprint-review',
+        name: 'Sprint Review (Revisão da Sprint)',
+        category: 'Cerimônias',
+        aliases: ['sprint review', 'revisao da sprint', 'demo', 'demonstracao da sprint'],
+        keywords: ['sprint review', 'revisao', 'demonstrar', 'incremento', 'feedback', 'partes interessadas', 'stakeholders', 'planejado x realizado'],
+        scenarioPatterns: ['demonstrar funcionalidades prontas ao cliente', 'receber feedback das partes interessadas', 'apresentar planejado x realizado'],
+        explanation: 'Cerimônia realizada ao final da Sprint (timebox de até 4 horas para Sprints de 30 dias) em que o Time demonstra o Incremento pronto ao PO e às partes interessadas para obter feedback e adaptar o Backlog.',
+        responsibleRole: 'Todo o Time Ágil e Partes Interessadas (Stakeholders)',
+        practicalApplicability: 'Na sexta-feira final da Sprint, o time apresenta o software funcionando ao PO e gestores da área demandante, coletando ajustes para o Backlog.'
+      },
+      {
+        id: 'sprint-retrospective',
+        name: 'Sprint Retrospective (Retrospectiva da Sprint)',
+        category: 'Cerimônias',
+        aliases: ['sprint retrospective', 'retrospectiva', 'retro', 'melhoria continua'],
+        keywords: ['retrospectiva', 'retrospective', 'melhoria continua', 'licoes aprendidas', 'swot', 'relacionamentos', 'plano de acao', 'inspecionar a si proprio'],
+        scenarioPatterns: ['analisar o que funcionou e o que melhorar', 'melhoria continua do processo', 'reuniao de fechamento da sprint', 'avaliar processos ferramentas e relacionamentos'],
+        explanation: 'Cerimônia que encerra a Sprint na qual o Time Scrum inspeciona a si próprio (processos, ferramentas e relacionamentos) em um ambiente seguro, definindo ações concretas de melhoria contínua para a próxima iteração.',
+        responsibleRole: 'Todo o Time Ágil (conduzida pelo Scrum Master)',
+        practicalApplicability: 'Após a Sprint Review, a equipe lista o que foi bom, o que precisa melhorar e define um responsável e prazo para automatizar os testes de regressão.'
+      },
+
+      // --- 6. PRÁTICAS (6) ---
+      {
+        id: 'timeboxing',
+        name: 'Timeboxing',
+        category: 'Práticas',
+        aliases: ['timeboxing', 'timebox', 'tempo fixo', 'caixa de tempo'],
+        keywords: ['timeboxing', 'timebox', 'tempo fixo', 'unidade de tempo', 'prazo fixo', 'restricao de tempo', 'gestao de risco'],
+        scenarioPatterns: ['alocar tempo fixo e maximo', 'prazo fixo e escopo flexivel', 'limitar duracao da reuniao ou ciclo'],
+        explanation: 'Prática de alocar uma unidade de tempo fixa e máxima (timebox) para cada atividade, cerimônia ou Sprint. Controla riscos e mantém o foco na entrega prioritária dentro de um prazo imutável.',
+        responsibleRole: 'Scrum Master (zela pelo cumprimento) e Todo o Time Ágil',
+        practicalApplicability: 'Limitar a Daily Meeting a exatos 15 minutos e manter a duração das Sprints fixa em 2 semanas, ajustando o escopo se necessário.'
+      },
+      {
+        id: 'priorizacao-moscow',
+        name: 'Priorização MoSCoW',
+        category: 'Práticas',
+        aliases: ['priorizacao moscow', 'moscow', 'must have', 'should have', 'could have', 'wont have', 'mvp'],
+        keywords: ['moscow', 'must have', 'should have', 'could have', 'wont have', 'priorizacao', 'mvp', 'deve ter', 'deveria ter', 'poderia ter'],
+        scenarioPatterns: ['priorizar requisitos essenciais', 'must have should have could have', 'definir produto minimo viavel', 'deixar desejaveis para depois'],
+        explanation: 'Técnica de priorização que classifica requisitos em: Must have (essenciais para o sucesso/MVP), Should have (importantes, mas não críticos no momento), Could have (desejáveis) e Won’t have (não entrarão agora).',
+        responsibleRole: 'Gerente do Produto (com apoio das partes interessadas)',
+        practicalApplicability: 'Para lançar o portal no prazo, o PO classifica o login e inscrição como Must Have, relatórios avançados como Should Have e tema escuro como Could Have.'
+      },
+      {
+        id: 'refinamento-backlog',
+        name: 'Refinamento do Backlog do Produto',
+        category: 'Práticas',
+        aliases: ['refinamento do backlog', 'backlog refinement', 'grooming', 'refinamento', 'spikes'],
+        keywords: ['refinamento', 'grooming', 'quebrar epicos', 'detalhar itens', 'limpar backlog', 'spikes', 'prova de conceito', 'viabilidade'],
+        scenarioPatterns: ['quebrar epicos em historias menores', 'detalhar e limpar o backlog', 'preparar itens para proximas sprints', 'prova de conceito tecnica'],
+        explanation: 'Atividade contínua de revisar, limpar, detalhar e reordenar o Backlog do Produto, quebrando Épicos em Histórias de Usuário menores e identificando provas de conceito (Spikes) antes da Sprint Planning.',
+        responsibleRole: 'Gerente do Produto e Time de Desenvolvimento',
+        practicalApplicability: 'No meio da Sprint atual, o PO e os desenvolvedores detalham os critérios de aceitação das histórias previstas para a Sprint seguinte.'
+      },
+      {
+        id: 'sprint-burndown',
+        name: 'Sprint Burn-down',
+        category: 'Práticas',
+        aliases: ['sprint burn-down', 'burndown', 'burn down', 'grafico burndown'],
+        keywords: ['burndown', 'burn-down', 'trabalho restante', 'taxa de conclusao', 'eixo vertical', 'monitorar progresso', 'grafico diario'],
+        scenarioPatterns: ['acompanhar trabalho que falta ser feito por dia', 'grafico de queima de tarefas', 'monitorar ritmo diario da sprint'],
+        explanation: 'Ferramenta visual de acompanhamento diário que compara a quantidade de trabalho restante (eixo vertical) ao longo dos dias da Sprint (eixo horizontal) em relação à linha ideal de conclusão.',
+        responsibleRole: 'Time de Desenvolvimento e Scrum Master',
+        practicalApplicability: 'Durante a Daily Meeting, o time observa o Sprint Burn-down e percebe que a linha estagnou, agindo cedo para destravar uma tarefa complexa.'
+      },
+      {
+        id: 'velocity-chart',
+        name: 'Velocity Chart (Gráfico de Velocidade)',
+        category: 'Práticas',
+        aliases: ['velocity chart', 'grafico de velocidade', 'velocity', 'velocidade', 'fator de foco'],
+        keywords: ['velocity', 'velocidade', 'fator de foco', 'capacidade de entrega', 'story points', 'media de trabalho', 'previsao'],
+        scenarioPatterns: ['medir quantidade media de trabalho por sprint', 'calcular capacidade da equipe', 'prever entregas futuras com story points'],
+        explanation: 'Métrica e gráfico que medem a quantidade média de trabalho (em Story Points ou horas) que o time conclui por Sprint, considerando sua capacidade de produção e o Fator de Foco (50% a 70% para equipes novas).',
+        responsibleRole: 'Scrum Master e Time de Desenvolvimento',
+        practicalApplicability: 'Com base na média de 24 Story Points entregues nas últimas 3 Sprints, o time sabe exatamente quanto trabalho assumir na próxima Planning.'
+      },
+      {
+        id: 'planning-poker',
+        name: 'Planning Poker',
+        category: 'Práticas',
+        aliases: ['planning poker', 'poker de planejamento', 'estimativa consensual', 'fibonacci'],
+        keywords: ['planning poker', 'cartas', 'estimar', 'estimativa', 'consensual', 'esforco', 'story points', 'gameficada'],
+        scenarioPatterns: ['usar cartas para estimar esforco', 'estimativa consensual da equipe', 'tecnica gameficada de estimativa'],
+        explanation: 'Técnica gamificada na qual apenas os membros do Time de Desenvolvimento utilizam cartas (geralmente sequência de Fibonacci) para estimar de forma simultânea e consensual o esforço dos itens do Backlog.',
+        responsibleRole: 'Time de Desenvolvimento (facilitado pelo Scrum Master)',
+        practicalApplicability: 'Ao estimar uma história, um dev vota "3" e outro "8"; eles debatem a complexidade técnica dos testes e convergem consensualmente para "5".'
+      }
+    ];
+
+    /**
+     * ============================================================================
+     * ESTADO DA APLICAÇÃO E CONFIGURAÇÃO VISUAL POR CATEGORIA
+     * ============================================================================
+     */
+    const CATEGORIES = [
+      'Todos',
+      'Valores e Pilares',
+      'Papéis',
+      'Fases',
+      'Artefatos',
+      'Cerimônias',
+      'Práticas'
+    ];
+
+    const CATEGORY_STYLES = {
+      'Valores e Pilares': {
+        badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-200 dark:border-amber-800/60',
+        border: 'border-l-amber-500',
+        dot: 'bg-amber-500'
+      },
+      'Papéis': {
+        badge: 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border-blue-200 dark:border-blue-800/60',
+        border: 'border-l-blue-500',
+        dot: 'bg-blue-500'
+      },
+      'Fases': {
+        badge: 'bg-teal-100 text-teal-800 dark:bg-teal-950/80 dark:text-teal-300 border-teal-200 dark:border-teal-800/60',
+        border: 'border-l-teal-500',
+        dot: 'bg-teal-500'
+      },
+      'Artefatos': {
+        badge: 'bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300 border-purple-200 dark:border-purple-800/60',
+        border: 'border-l-purple-500',
+        dot: 'bg-purple-500'
+      },
+      'Cerimônias': {
+        badge: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60',
+        border: 'border-l-indigo-500',
+        dot: 'bg-indigo-500'
+      },
+      'Práticas': {
+        badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60',
+        border: 'border-l-emerald-500',
+        dot: 'bg-emerald-500'
+      }
+    };
+
+    const appState = {
+      engineMode: 'hybrid', // 'hybrid' (tenta Gemini API + fallback local) ou 'local' (motor semântico local)
+      sidebarView: 'session', // 'session' ou 'catalog'
+      selectedCategory: 'Todos',
+      identifiedConcepts: new Map(), // conceptId -> { concept, hits, lastQuery, timestamp }
+      conversationLog: [], // histórico estruturado para exportação
+      isProcessing: false
+    };
+
+    const STOPWORDS_PT = new Set([
+      'o', 'a', 'os', 'as', 'um', 'uma', 'uns', 'umas', 'de', 'do', 'da', 'dos', 'das',
+      'em', 'no', 'na', 'nos', 'nas', 'por', 'pelo', 'pela', 'pelos', 'pelas', 'para',
+      'com', 'sem', 'sob', 'sobre', 'entre', 'ate', 'apos', 'desde', 'que', 'qual',
+      'quais', 'quem', 'onde', 'como', 'quando', 'porque', 'e', 'ou', 'mas', 'se',
+      'ao', 'aos', 'a', 'as', 'ele', 'ela', 'eles', 'elas', 'isso', 'isto', 'aquilo',
+      'meu', 'minha', 'seu', 'sua', 'nosso', 'nossa', 'ser', 'estar', 'ter', 'haver',
+      'fazer', 'ir', 'ver', 'dar', 'saber', 'poder', 'dever', 'querer', 'foi', 'sao',
+      'esta', 'estao', 'tem', 'significa', 'explique', 'me', 'fale', 'sobre', 'conceito'
+    ]);
+
+    /**
+     * ============================================================================
+     * FUNÇÕES DE NORMALIZAÇÃO E MOTOR DE RECONHECIMENTO LÉXICO/SEMÂNTICO LOCAL
+     * ============================================================================
+     */
+    function normalizeText(text) {
+      return (text || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function tokenize(normalizedText) {
+      return normalizedText
+        .split(' ')
+        .filter(token => token.length > 1 && !STOPWORDS_PT.has(token));
+    }
+
+    // Stemming leve em português para capturar variações de plural/conjugação
+    function stemPt(word) {
+      if (word.length <= 4) return word;
+      return word
+        .replace(/(acoes|icoes|oes)$/, 'ao')
+        .replace(/(mentos|mento)$/, 'ment')
+        .replace(/(adores|ador|adoras|adora)$/, 'ador')
+        .replace(/(aveis|avel|iveis|ivel)$/, 'vel')
+        .replace(/(ando|endo|indo)$/, '')
+        .replace(/(s)$/, '');
+    }
+
+    /**
+     * Analisa uma mensagem usando o motor semântico/léxico local.
+     * Suporta perguntas diretas, descrições de cenários complexos e listagem por categoria.
+     */
+    function analyzeLocally(rawQuery) {
+      const normQuery = normalizeText(rawQuery);
+      const queryTokens = tokenize(normQuery);
+      const queryStems = queryTokens.map(stemPt);
+
+      // 1. Verificar saudações simples
+      if (/^(oi|ola|bom dia|boa tarde|boa noite|tudo bem|ajuda|help|menu)$/.test(normQuery)) {
+        return {
+          summary: 'Olá! Estou pronto para ajudar. Digite uma dúvida direta (ex.: **"O que é Sprint Review?"**) ou descreva uma situação do dia a dia do projeto (ex.: **"Reunião diária de 15 minutos em pé para ver impedimentos"**) para eu identificar os conceitos ágeis envolvidos.',
+          matches: [],
+          source: 'Motor Semântico Local'
+        };
+      }
+
+      // 2. Verificar intenção de listar toda uma categoria (ex: "quais são os papéis?", "listar cerimônias")
+      const categoryTriggers = [
+        { cat: 'Valores e Pilares', terms: ['valores', 'pilares', 'valor', 'pilar', 'empirismo'] },
+        { cat: 'Papéis', terms: ['papeis', 'papel', 'funcoes', 'atores', 'quem participa'] },
+        { cat: 'Fases', terms: ['fases', 'fase', 'etapas', 'ciclo de vida'] },
+        { cat: 'Artefatos', terms: ['artefatos', 'artefato', 'documentos', 'entregaveis'] },
+        { cat: 'Cerimônias', terms: ['cerimonias', 'cerimonia', 'eventos', 'ritos', 'reunioes'] },
+        { cat: 'Práticas', terms: ['praticas', 'pratica', 'tecnicas', 'ferramentas', 'metricas'] }
+      ];
+
+      const isListIntent = /(quais|listar|liste|todos|todas|mostrar|mostre|explique os|explique as|conhecer)/.test(normQuery);
+      if (isListIntent && queryTokens.length <= 4) {
+        for (const trigger of categoryTriggers) {
+          if (trigger.terms.some(t => normQuery.includes(t))) {
+            const catConcepts = AGILE_CONCEPTS.filter(c => c.category === trigger.cat);
+            return {
+              summary: `Aqui estão todos os **${catConcepts.length} conceitos** da categoria **${trigger.cat}** previstos na Metodologia Ágil:`,
+              matches: catConcepts.map(c => ({ concept: c, score: 90, matchType: 'Categoria Completa' })),
+              source: 'Motor Semântico Local'
+            };
+          }
+        }
+      }
+
+      // 3. Pontuação Semântica & Léxica multi-critério para cada conceito
+      const scored = AGILE_CONCEPTS.map(concept => {
+        let score = 0;
+        let matchType = 'Correspondência Contextual';
+        const normName = normalizeText(concept.name);
+
+        // A. Match exato de nome ou alias (Pergunta Direta)
+        for (const alias of concept.aliases) {
+          const normAlias = normalizeText(alias);
+          if (normAlias.length >= 2) {
+            const regex = new RegExp(`\\b${normAlias.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i');
+            if (regex.test(normQuery)) {
+              score += normAlias.length >= 5 ? 110 : 75;
+              matchType = 'Pergunta Direta';
+            }
+          }
+        }
+
+        // B. Match de padrões de cenário (Descrições de situações reais)
+        for (const pattern of concept.scenarioPatterns) {
+          const normPattern = normalizeText(pattern);
+          if (normQuery.includes(normPattern)) {
+            score += 65;
+            if (matchType !== 'Pergunta Direta') matchType = 'Análise de Cenário';
+          } else {
+            // Overlap parcial de tokens do padrão de cenário
+            const patTokens = tokenize(normPattern);
+            const overlap = patTokens.filter(pt => queryTokens.includes(pt) || queryStems.includes(stemPt(pt)));
+            if (patTokens.length >= 2 && overlap.length >= Math.ceil(patTokens.length * 0.66)) {
+              score += 38;
+              if (matchType !== 'Pergunta Direta') matchType = 'Análise de Cenário';
+            }
+          }
+        }
+
+        // C. Match de palavras-chave ponderadas e radicais (Stems)
+        let keywordHits = 0;
+        for (const kw of concept.keywords) {
+          const normKw = normalizeText(kw);
+          if (normKw.includes(' ')) {
+            if (normQuery.includes(normKw)) {
+              score += 35;
+              keywordHits++;
+            }
+          } else {
+            const kwStem = stemPt(normKw);
+            if (queryTokens.includes(normKw)) {
+              score += 20;
+              keywordHits++;
+            } else if (kwStem.length >= 4 && queryStems.includes(kwStem)) {
+              score += 14;
+              keywordHits++;
+            }
+          }
+        }
+
+        // Bônus por múltiplos termos convergentes no mesmo conceito
+        if (keywordHits >= 3) score += 22;
+        if (normQuery.includes(normName)) score += 40;
+
+        return { concept, score, matchType };
+      });
+
+      // 4. Regras de inferência relacional (Cenários compostos)
+      // Ex: Se identificou Daily Meeting e o texto menciona "impedimentos", reforça Scrum Master, Inspeção e Transparência
+      const scoreMap = new Map(scored.map(item => [item.concept.id, item]));
+      const hasImpediment = /(impedimento|bloqueio|obstaculo|travado)/.test(normQuery);
+      const dailyItem = scoreMap.get('daily-meeting');
+
+      if (dailyItem && dailyItem.score >= 50) {
+        if (hasImpediment) {
+          const sm = scoreMap.get('scrum-master');
+          if (sm) { sm.score = Math.max(sm.score, 58); sm.matchType = 'Relação no Cenário'; }
+        }
+        const insp = scoreMap.get('inspecao');
+        const transp = scoreMap.get('transparencia');
+        if (insp) { insp.score = Math.max(insp.score, 46); insp.matchType = 'Pilar Subjacente'; }
+        if (transp) { transp.score = Math.max(transp.score, 44); transp.matchType = 'Pilar Subjacente'; }
+      }
+
+      // Filtrar e ordenar os resultados relevantes
+      const threshold = 32;
+      const topMatches = scored
+        .filter(item => item.score >= threshold)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+
+      if (topMatches.length === 0) {
+        return {
+          summary: 'Não identifiquei um conceito específico com alta confiança nessa frase. Tente detalhar um pouco mais o contexto (ex.: papéis envolvidos, momento do projeto, artefato ou objetivo da reunião) ou escolha uma das sugestões rápidas abaixo.',
+          matches: [],
+          source: 'Motor Semântico Local'
+        };
+      }
+
+      const primary = topMatches[0];
+      const isDirect = primary.matchType === 'Pergunta Direta' && topMatches.length === 1;
+      const summary = isDirect
+        ? `Identifiquei diretamente o conceito **${primary.concept.name}** (${primary.concept.category}). Veja os detalhes estruturados abaixo:`
+        : `Analisei sua descrição e identifiquei **${topMatches.length} conceito(s) ágil(eis)** diretamente relacionados ao contexto apresentado:`;
+
+      return {
+        summary,
+        matches: topMatches,
+        source: 'Motor Semântico Local'
+      };
+    }
+
+    /**
+     * ============================================================================
+     * INTEGRAÇÃO COM A API GEMINI (COM BACKOFF EXPONENCIAL E FALLBACK INSTANTÂNEO)
+     * ============================================================================
+     */
+    async function analyzeWithGeminiAndFallback(userQuery) {
+      // Se o usuário selecionou explicitamente o modo Local Instantâneo, usa direto o motor local
+      if (appState.engineMode === 'local') {
+        return analyzeLocally(userQuery);
+      }
+
+      // Executa análise local primeiro para garantir velocidade e base de comparação
+      const localResult = analyzeLocally(userQuery);
+
+      // Se for saudação simples, responde na hora sem gastar chamada de rede
+      if (localResult.matches.length === 0 && /^(oi|ola|bom dia|boa tarde|boa noite|ajuda)$/.test(normalizeText(userQuery))) {
+        return localResult;
+      }
+
+      const apiKey = ""; // Preenchido automaticamente pelo ambiente em tempo de execução quando disponível
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+      const catalogIndex = AGILE_CONCEPTS.map(c => `- "${c.id}": ${c.name} (${c.category})`).join('\n');
+      const systemInstruction = `Você é o AgilBot, especialista na Metodologia Ágil de Desenvolvimento de Software (Scrum e práticas complementares).
+Analise a pergunta ou cenário real enviado pelo usuário e identifique quais conceitos da lista oficial abaixo se aplicam.
+Lista oficial de IDs válidos:
+${catalogIndex}
+
+Regras:
+1. Retorne apenas IDs exatos presentes na lista acima (entre 1 e 5 IDs, ordenados do mais central para os complementares).
+2. Escreva "contextualSummary" em português claro, objetivo e didático, explicando por que os conceitos identificados se aplicam à situação descrita.`;
+
+      const payload = {
+        contents: [{ role: 'user', parts: [{ text: userQuery }] }],
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        generationConfig: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'OBJECT',
+            properties: {
+              contextualSummary: { type: 'STRING' },
+              identifiedConceptIds: {
+                type: 'ARRAY',
+                items: { type: 'STRING' }
+              }
+            },
+            required: ['contextualSummary', 'identifiedConceptIds']
+          }
+        }
+      };
+
+      // Tenta chamada à API Gemini com backoff exponencial (até 2 tentativas rápidas, sem poluir console)
+      const maxRetries = 2;
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            if ((response.status === 429 || response.status >= 500) && attempt < maxRetries) {
+              await new Promise(res => setTimeout(res, 1000 * Math.pow(2, attempt)));
+              continue;
+            }
+            throw new Error('Fallback to local engine');
+          }
+
+          const data = await response.json();
+          const rawJsonText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!rawJsonText) throw new Error('Empty response');
+
+          const parsed = JSON.parse(rawJsonText);
+          const validConcepts = (parsed.identifiedConceptIds || [])
+            .map(id => AGILE_CONCEPTS.find(c => c.id === id))
+            .filter(Boolean);
+
+          // Mescla com matches exatos do motor local caso a IA tenha omitido algum termo literal
+          const mergedMap = new Map();
+          validConcepts.forEach((c, idx) => {
+            mergedMap.set(c.id, {
+              concept: c,
+              score: 100 - idx * 10,
+              matchType: idx === 0 ? 'Principal (IA + Base Ágil)' : 'Relacionado (IA + Base Ágil)'
+            });
+          });
+          localResult.matches.forEach(m => {
+            if (!mergedMap.has(m.concept.id) && mergedMap.size < 5 && m.score >= 70) {
+              mergedMap.set(m.concept.id, m);
+            }
+          });
+
+          const finalMatches = Array.from(mergedMap.values());
+          if (finalMatches.length > 0) {
+            return {
+              summary: parsed.contextualSummary || localResult.summary,
+              matches: finalMatches,
+              source: 'Gemini IA + Motor Local'
+            };
+          }
+
+          return localResult;
+        } catch (_err) {
+          if (attempt === maxRetries) {
+            // Fallback silencioso e imediato para o motor semântico local
+            return localResult;
+          }
+        }
+      }
+
+      return localResult;
+    }
+
+    /**
+     * ============================================================================
+     * RENDERIZAÇÃO DE MENSAGENS E CARTÕES ESTRUTURADOS NO CHAT
+     * ============================================================================
+     */
+    function formatInlineMarkdown(text) {
+      return escapeHtml(text)
+        .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-slate-900 dark:text-white">$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>');
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function appendUserMessage(text) {
+      const chatContainer = document.getElementById('chat-messages');
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex items-start justify-end gap-3 animate-message';
+      wrapper.innerHTML = `
+        <div class="max-w-2xl bg-brand-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm">
+          <p class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>
+        </div>
+        <div class="w-9 h-9 rounded-2xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+          VOCÊ
+        </div>
+      `;
+      chatContainer.appendChild(wrapper);
+      scrollToBottom();
+    }
+
+    function appendBotResponse(result) {
+      const chatContainer = document.getElementById('chat-messages');
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex items-start gap-3 max-w-4xl animate-message';
+
+      const cardsHtml = result.matches.map(({ concept, matchType }) => {
+        const style = CATEGORY_STYLES[concept.category] || CATEGORY_STYLES['Práticas'];
+        return `
+          <article class="rounded-2xl bg-slate-50/90 dark:bg-slate-800/75 border border-slate-200 dark:border-slate-700/80 border-l-4 ${style.border} p-4 space-y-2.5 transition-all hover:shadow-md">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${style.badge}">
+                  ${escapeHtml(concept.category)}
+                </span>
+                <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                  ${escapeHtml(concept.name)}
+                </h4>
+              </div>
+              <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                ${escapeHtml(matchType)}
+              </span>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <span class="font-semibold text-slate-900 dark:text-slate-100">Explicação objetiva:</span>
+              ${escapeHtml(concept.explanation)}
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 text-xs">
+              <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-700/80">
+                <div class="font-semibold text-brand-700 dark:text-brand-400 mb-0.5 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                  </svg>
+                  Papel responsável
+                </div>
+                <p class="text-slate-600 dark:text-slate-300">${escapeHtml(concept.responsibleRole)}</p>
+              </div>
+
+              <div class="p-2.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/25 border border-emerald-200/70 dark:border-emerald-800/50">
+                <div class="font-semibold text-emerald-700 dark:text-emerald-400 mb-0.5 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Aplicabilidade prática
+                </div>
+                <p class="text-slate-600 dark:text-slate-300">${escapeHtml(concept.practicalApplicability)}</p>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      wrapper.innerHTML = `
+        <div class="w-9 h-9 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-sm mt-0.5">
+          AB
+        </div>
+        <div class="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-tl-sm p-4 sm:p-5 shadow-sm space-y-3.5 min-w-0">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-bold text-brand-600 dark:text-brand-400">AgilBot</span>
+            <span class="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+              Motor: ${escapeHtml(result.source)}
+            </span>
+          </div>
+          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            ${formatInlineMarkdown(result.summary)}
+          </p>
+          ${cardsHtml ? `<div class="space-y-3 pt-1">${cardsHtml}</div>` : ''}
+        </div>
+      `;
+
+      chatContainer.appendChild(wrapper);
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      const chatContainer = document.getElementById('chat-messages');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    /**
+     * ============================================================================
+     * GERENCIAMENTO DA SESSÃO, PAINEL LATERAL E FILTROS
+     * ============================================================================
+     */
+    function registerIdentifiedConcepts(matches, userQuery) {
+      if (!matches || matches.length === 0) return;
+      const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+      matches.forEach(({ concept }) => {
+        if (appState.identifiedConcepts.has(concept.id)) {
+          const existing = appState.identifiedConcepts.get(concept.id);
+          existing.hits += 1;
+          existing.lastQuery = userQuery;
+          existing.timestamp = now;
+        } else {
+          appState.identifiedConcepts.set(concept.id, {
+            concept,
+            hits: 1,
+            lastQuery: userQuery,
+            timestamp: now
+          });
+        }
+      });
+
+      updateSessionBadges();
+      renderSidebar();
+    }
+
+    function updateSessionBadges() {
+      const count = appState.identifiedConcepts.size;
+      document.getElementById('session-count-badge').textContent = count;
+      document.getElementById('tab-session-num').textContent = count;
+      document.getElementById('mobile-session-badge').textContent = count;
+    }
+
+    function renderCategoryFilters() {
+      const container = document.getElementById('category-filters');
+      container.innerHTML = CATEGORIES.map(cat => {
+        const isActive = appState.selectedCategory === cat;
+        const activeClasses = 'bg-brand-600 text-white border-brand-600 shadow-xs';
+        const inactiveClasses = 'bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-brand-400';
+
+        // Contagem dinâmica conforme a aba ativa
+        let count = 0;
+        if (appState.sidebarView === 'session') {
+          const items = Array.from(appState.identifiedConcepts.values());
+          count = cat === 'Todos' ? items.length : items.filter(i => i.concept.category === cat).length;
+        } else {
+          count = cat === 'Todos' ? AGILE_CONCEPTS.length : AGILE_CONCEPTS.filter(c => c.category === cat).length;
+        }
+
+        return `
+          <button type="button" onclick="selectCategory('${cat}')"
+            class="px-2.5 py-1 rounded-xl text-[11px] font-medium border transition-all ${isActive ? activeClasses : inactiveClasses}">
+            ${cat} (${count})
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderSidebar() {
+      renderCategoryFilters();
+      const listContainer = document.getElementById('sidebar-concepts-list');
+
+      if (appState.sidebarView === 'session') {
+        let entries = Array.from(appState.identifiedConcepts.values()).reverse();
+        if (appState.selectedCategory !== 'Todos') {
+          entries = entries.filter(e => e.concept.category === appState.selectedCategory);
+        }
+
+        if (entries.length === 0) {
+          const emptyMsg = appState.identifiedConcepts.size === 0
+            ? 'Nenhum conceito identificado ainda. Envie uma pergunta ou descreva um cenário no chat para começar.'
+            : `Nenhum conceito da categoria "${appState.selectedCategory}" foi identificado nesta sessão.`;
+
+          listContainer.innerHTML = `
+            <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center space-y-2">
+              <div class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 mx-auto flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">${escapeHtml(emptyMsg)}</p>
+            </div>
+          `;
+          return;
+        }
+
+        listContainer.innerHTML = entries.map(({ concept, hits, timestamp }) => {
+          const style = CATEGORY_STYLES[concept.category] || CATEGORY_STYLES['Práticas'];
+          return `
+            <div class="group rounded-2xl bg-slate-50 dark:bg-slate-800/70 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 p-3 transition-all shadow-2xs hover:shadow-sm">
+              <div class="flex items-start justify-between gap-2">
+                <button type="button" onclick="openConceptModal('${concept.id}')" class="text-left flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <span class="w-2 h-2 rounded-full ${style.dot}"></span>
+                    <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate">
+                      ${escapeHtml(concept.category)}
+                    </span>
+                    ${hits > 1 ? `<span class="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300">${hits}x</span>` : ''}
+                  </div>
+                  <div class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                    ${escapeHtml(concept.name)}
+                  </div>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
+                    ${escapeHtml(concept.explanation)}
+                  </p>
+                </button>
+                <button type="button" onclick="removeConceptFromSession('${concept.id}')"
+                  class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+                  title="Remover da sessão">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200/60 dark:border-slate-700/60 text-[10px] text-slate-400">
+                <span>Identificado às ${timestamp}</span>
+                <button type="button" onclick="openConceptModal('${concept.id}')" class="font-semibold text-brand-600 dark:text-brand-400 hover:underline">
+                  Ver detalhes →
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        // Visão: Catálogo Completo (32 Conceitos)
+        let concepts = AGILE_CONCEPTS;
+        if (appState.selectedCategory !== 'Todos') {
+          concepts = concepts.filter(c => c.category === appState.selectedCategory);
+        }
+
+        listContainer.innerHTML = concepts.map(concept => {
+          const style = CATEGORY_STYLES[concept.category] || CATEGORY_STYLES['Práticas'];
+          const isIdentified = appState.identifiedConcepts.has(concept.id);
+          return `
+            <div onclick="openConceptModal('${concept.id}')"
+              class="cursor-pointer rounded-2xl bg-slate-50 dark:bg-slate-800/70 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 p-3 transition-all hover:shadow-sm">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                  <span class="w-2 h-2 rounded-full ${style.dot}"></span>
+                  ${escapeHtml(concept.category)}
+                </span>
+                ${isIdentified ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Na sessão</span>` : ''}
+              </div>
+              <div class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                ${escapeHtml(concept.name)}
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
+                ${escapeHtml(concept.explanation)}
+              </p>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function selectCategory(category) {
+      appState.selectedCategory = category;
+      renderSidebar();
+    }
+
+    function setSidebarView(view) {
+      appState.sidebarView = view;
+      const sessionBtn = document.getElementById('tab-session-btn');
+      const catalogBtn = document.getElementById('tab-catalog-btn');
+
+      if (view === 'session') {
+        sessionBtn.className = 'py-1.5 px-2.5 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs';
+        catalogBtn.className = 'py-1.5 px-2.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+      } else {
+        catalogBtn.className = 'py-1.5 px-2.5 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs';
+        sessionBtn.className = 'py-1.5 px-2.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+      }
+      renderSidebar();
+    }
+
+    function removeConceptFromSession(conceptId) {
+      appState.identifiedConcepts.delete(conceptId);
+      updateSessionBadges();
+      renderSidebar();
+      showToast('Conceito removido da sessão.');
+    }
+
+    /**
+     * ============================================================================
+     * INTERAÇÕES DE ENTRADA, ENVIO E CONTROLES DE UI
+     * ============================================================================
+     */
+    async function handleChatSubmit(event) {
+      if (event) event.preventDefault();
+      if (appState.isProcessing) return;
+
+      const inputEl = document.getElementById('user-input');
+      const query = inputEl.value.trim();
+      if (!query) return;
+
+      inputEl.value = '';
+      inputEl.style.height = 'auto';
+      await processUserQuery(query);
+    }
+
+    async function sendQuickPrompt(promptText) {
+      if (appState.isProcessing) return;
+      await processUserQuery(promptText);
+    }
+
+    async function processUserQuery(query) {
+      appState.isProcessing = true;
+      const sendBtn = document.getElementById('send-btn');
+      const typingEl = document.getElementById('typing-indicator');
+      sendBtn.disabled = true;
+
+      appendUserMessage(query);
+      typingEl.classList.remove('hidden');
+      scrollToBottom();
+
+      // Pequeno delay mínimo para feedback visual natural caso o motor local responda em <5ms
+      const minDelay = new Promise(resolve => setTimeout(resolve, 260));
+      const [result] = await Promise.all([
+        analyzeWithGeminiAndFallback(query),
+        minDelay
+      ]);
+
+      typingEl.classList.add('hidden');
+      appendBotResponse(result);
+
+      if (result.matches && result.matches.length > 0) {
+        registerIdentifiedConcepts(result.matches, query);
+      }
+
+      appState.conversationLog.push({
+        timestamp: new Date().toLocaleString('pt-BR'),
+        query,
+        summary: result.summary,
+        concepts: result.matches.map(m => m.concept.name)
+      });
+
+      appState.isProcessing = false;
+      sendBtn.disabled = false;
+      document.getElementById('user-input').focus();
+    }
+
+    function handleInputKeydown(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        handleChatSubmit();
+      }
+    }
+
+    function autoResizeTextarea(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 128) + 'px';
+    }
+
+    function setEngineMode(mode) {
+      appState.engineMode = mode;
+      const hybridBtn = document.getElementById('mode-hybrid-btn');
+      const localBtn = document.getElementById('mode-local-btn');
+
+      if (mode === 'hybrid') {
+        hybridBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-700 text-brand-700 dark:text-brand-300 shadow-sm';
+        localBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+        showToast('Modo Híbrido ativado (Gemini IA + Motor Local)');
+      } else {
+        localBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-sm';
+        hybridBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+        showToast('Modo Local Instantâneo ativado');
+      }
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function toggleMobileSidebar(open) {
+      const sidebar = document.getElementById('right-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (open) {
+        sidebar.classList.remove('translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    /**
+     * ============================================================================
+     * MODAL DE DETALHES E MODAL DE LIMPEZA DE SESSÃO
+     * ============================================================================
+     */
+    function openConceptModal(conceptId) {
+      const concept = AGILE_CONCEPTS.find(c => c.id === conceptId);
+      if (!concept) return;
+
+      const style = CATEGORY_STYLES[concept.category] || CATEGORY_STYLES['Práticas'];
+      const badgeEl = document.getElementById('modal-category-badge');
+      badgeEl.className = `inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border mb-1.5 ${style.badge}`;
+      badgeEl.textContent = concept.category;
+
+      document.getElementById('modal-title').textContent = concept.name;
+      document.getElementById('modal-explanation').textContent = concept.explanation;
+      document.getElementById('modal-role').textContent = concept.responsibleRole;
+      document.getElementById('modal-applicability').textContent = concept.practicalApplicability;
+
+      const askBtn = document.getElementById('modal-ask-btn');
+      askBtn.onclick = () => {
+        closeConceptModal();
+        toggleMobileSidebar(false);
+        sendQuickPrompt(`O que é ${concept.name}?`);
+      };
+
+      const modal = document.getElementById('concept-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeConceptModal() {
+      const modal = document.getElementById('concept-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function requestResetChat() {
+      const modal = document.getElementById('confirm-clear-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeClearModal() {
+      const modal = document.getElementById('confirm-clear-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmResetChat() {
+      closeClearModal();
+      appState.identifiedConcepts.clear();
+      appState.conversationLog = [];
+      updateSessionBadges();
+      renderSidebar();
+
+      const chatContainer = document.getElementById('chat-messages');
+      // Mantém apenas o primeiro card de boas-vindas
+      while (chatContainer.children.length > 1) {
+        chatContainer.removeChild(chatContainer.lastChild);
+      }
+      showToast('Sessão reiniciada com sucesso.');
+    }
+
+    /**
+     * ============================================================================
+     * CÓPIA E EXPORTAÇÃO DO RESUMO DA SESSÃO (SEM USAR navigator.clipboard)
+     * ============================================================================
+     */
+    function buildSessionMarkdownReport() {
+      const dateStr = new Date().toLocaleString('pt-BR');
+      const items = Array.from(appState.identifiedConcepts.values());
+
+      let md = `# Resumo de Conceitos Ágeis Identificados — AgilBot\n`;
+      md += `**Data/Hora:** ${dateStr}\n`;
+      md += `**Total de Conceitos Únicos Identificados:** ${items.length}\n\n`;
+      md += `---\n\n`;
+
+      if (items.length === 0) {
+        md += `_Nenhum conceito ágil foi identificado nesta sessão até o momento._\n`;
+        return md;
+      }
+
+      // Agrupar por categoria para leitura executiva limpa
+      for (const cat of CATEGORIES.filter(c => c !== 'Todos')) {
+        const catItems = items.filter(i => i.concept.category === cat);
+        if (catItems.length === 0) continue;
+
+        md += `## ${cat}\n\n`;
+        catItems.forEach(({ concept, hits }) => {
+          md += `### ${concept.name} ${hits > 1 ? `(identificado ${hits}x)` : ''}\n`;
+          md += `- **Explicação Objetiva:** ${concept.explanation}\n`;
+          md += `- **Papel Responsável:** ${concept.responsibleRole}\n`;
+          md += `- **Aplicabilidade Prática:** ${concept.practicalApplicability}\n\n`;
+        });
+      }
+
+      return md;
+    }
+
+    function copySessionSummary() {
+      if (appState.identifiedConcepts.size === 0) {
+        showToast('Identifique ao menos um conceito no chat antes de copiar o resumo.');
+        return;
+      }
+
+      const reportText = buildSessionMarkdownReport();
+      const tempTextarea = document.createElement('textarea');
+      tempTextarea.value = reportText;
+      tempTextarea.style.position = 'fixed';
+      tempTextarea.style.opacity = '0';
+      document.body.appendChild(tempTextarea);
+      tempTextarea.select();
+
+      try {
+        const success = document.execCommand('copy');
+        if (success) {
+          showToast('Resumo copiado para a área de transferência!');
+        } else {
+          showToast('Não foi possível copiar automaticamente.');
+        }
+      } catch (_err) {
+        showToast('Erro ao copiar texto.');
+      } finally {
+        document.body.removeChild(tempTextarea);
+      }
+    }
+
+    function exportSessionSummary() {
+      if (appState.identifiedConcepts.size === 0) {
+        showToast('Identifique ao menos um conceito no chat antes de exportar.');
+        return;
+      }
+
+      const reportText = buildSessionMarkdownReport();
+      const blob = new Blob([reportText], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().slice(0, 10);
+
+      link.href = url;
+      link.download = `agilbot-resumo-sessao-${timestamp}.md`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast('Relatório .md exportado com sucesso!');
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'px-4 py-2.5 rounded-2xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold shadow-lg animate-message';
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => toast.remove(), 250);
+      }, 2600);
+    }
+
+    // Inicialização ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      }
+      updateSessionBadges();
+      renderSidebar();
+    });
+  </script>
+</body>
+</html>
